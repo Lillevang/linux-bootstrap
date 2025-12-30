@@ -21,17 +21,6 @@ export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
 [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
 
-# Aliases
-alias python='python3.11'
-alias i2p='/home/jls/util/i2p/i2p.py'
-alias setconfig="export KUBECONFIG=/mnt/c/Users/Lille/.kube/config"
-alias go-update="~/util/go-updater/go-updater.sh"
-alias k9s-update="~/util/k9s-updater/k9s-updater.sh"
-alias webp-to-png="/home/jls/util/webp-to-png/webp-to-png.py"
-alias pip="python3.11 -m pip"
-alias sshinit='eval "$(ssh-agent -s 2>/dev/null)" && ssh-add ~/.ssh/datadruid'
-alias qr-reader="~/util/qr-reader/qr-reader.py"
-
 # Kubernetes Aliases
 alias k="kubectl"
 alias kn="kubectl get nodes"
@@ -83,27 +72,9 @@ alias today="date +%Y-%m-%d"
 
 #Define paths
 LOCAL_BIN='/home/jls/.local'
-M2_HOME='/opt/apache-maven-3.9.6'
-GO_PATH='/usr/local/go/bin'
-K9S_PATH='/usr/local/k9s/bin'
-GOROOT='/usr/local/go'
-GOPATH='/home/jls/go'
-PULUMI_PATH='/home/jls/.pulumi/bin'
-MARKSMAN_PATH='/snap/bin'
-DPRINT_PATH='/home/jls/.dprint/bin'
-COURSIER_PATH='/home/jls/.local/share/coursier/bin'
 
 paths=(
-  "$COURSIER_PATH"
   "$LOCAL_BIN/bin"
-  "$GOROOT/bin"
-  "$GOPATH/bin"
-  "$GO_PATH"
-  "$K9S_PATH"
-  "$M2_HOME/bin"
-  "$PULUMI_PATH"
-  "$MARKSMAN_PATH"
-  "$DPRINT_PATH"
 )
 
 # Append to PATH without overwriting
