@@ -1,7 +1,13 @@
-# Install Helix
-curl -LO https://github.com/helix-editor/helix/releases/latest/download/helix-23.10-x86_64.AppImage
-chmod +x helix-*.AppImage
-sudo mv helix-*.AppImage /usr/local/bin/hx
+#!/usr/bin/env bash
+set -euo pipefail
 
-# Or install from GitHub tarball
-hx --grammar fetch
+if ! command -v dnf >/dev/null 2>&1; then
+  echo "❌ Fedora's dnf package manager not found. Editor installation supports Fedora only."
+  exit 1
+fi
+
+echo "📝 Installing Helix via dnf..."
+sudo dnf install -y helix
+
+echo "🧪 Verifying Helix installation..."
+helix --health

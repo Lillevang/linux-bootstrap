@@ -24,11 +24,9 @@ run_step "Installing base tools" "./scripts/install_tools.sh"
 run_step "Installing languages" "./scripts/install_languages.sh"
 run_step "Installing Helix and LSPs" "./scripts/install_editors.sh"
 run_step "Installing Kubernetes tools" "./scripts/install_kube_tools.sh"
-run_step "Installing cloud CLIs" "./scripts/install_cloud_clis.sh"
 run_step "Installing Zsh + Oh My Zsh" "./scripts/install_oh_my_zsh.sh"
 run_step "Linking dotfiles" "./link_dotfiles.sh"
 run_step "Running Go updater" "./scripts/go-updater/go-updater.sh"
-run_step "Running K9s updater" "./scripts/k9s-updater/k9s-updater.sh"
 
 echo
 echo "✅ Bootstrap Summary:"
