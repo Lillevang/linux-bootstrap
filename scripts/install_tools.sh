@@ -3,13 +3,10 @@ set -e
 
 echo "🔧 Installing base tools..."
 
-if [ -x "$(command -v apt-get)" ]; then
-  sudo apt-get update
-  sudo apt-get install -y curl wget git zsh unzip htop fzf
-elif [ -x "$(command -v dnf)" ]; then
+if [ -x "$(command -v dnf)" ]; then
   sudo dnf install -y curl wget git zsh unzip htop fzf
 else
-  echo "❌ Unsupported package manager. Please install tools manually."
+  echo "❌ Fedora's dnf package manager not found. This bootstrap currently supports Fedora only."
   exit 1
 fi
 
