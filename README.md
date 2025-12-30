@@ -1,6 +1,6 @@
 # 🐧 Linux Bootstrap
 
-Bootstrap a fresh Linux machine (laptop, WSL, VM, etc.) with essential tools, languages, and dotfiles.
+Bootstrap a fresh Fedora machine (laptop, WSL, VM, etc.) with essential tools, languages, and dotfiles. This bootstrap currently targets dnf-based Fedora systems only.
 
 ---
 
@@ -54,10 +54,7 @@ Before running the bootstrap script, you need to:
 
 ## 🧪 Tested On
 
-- Ubuntu 22.04
-- Debian (WSL)
-- Arch Linux (VM)
-- Fedora (TBD)
+- Fedora (Workstation/Server)
 
 ---
 
