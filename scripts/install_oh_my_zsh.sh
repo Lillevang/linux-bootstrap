@@ -3,6 +3,16 @@ set -e
 
 echo "🐚 Installing Oh My Zsh..."
 
+if ! [ -x "$(command -v dnf)" ]; then
+  echo "❌ Fedora's dnf package manager not found. Oh My Zsh installation supports Fedora only."
+  exit 1
+fi
+
+if ! command -v zsh >/dev/null 2>&1; then
+  echo "🔧 Installing Zsh..."
+  sudo dnf install -y zsh
+fi
+
 if [ ! -d "$HOME/.oh-my-zsh" ]; then
   RUNZSH=no CHSH=no KEEP_ZSHRC=yes \
     sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
@@ -25,8 +35,8 @@ git clone https://github.com/zsh-users/zsh-history-substring-search \
   "${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins/zsh-history-substring-search"
 
 echo "🧲 Installing autojump..."
-if [ -x "$(command -v apt)" ]; then
-  sudo apt install -y autojump
-elif [ -x "$(command -v dnf)" ]; then
+if [ -x "$(command -v dnf)" ]; then
   sudo dnf install -y autojump
+else
+  echo "⚠️  Skipping autojump install because dnf is unavailable (Fedora-only step)."
 fi
