@@ -6,8 +6,14 @@ if ! command -v dnf >/dev/null 2>&1; then
   exit 1
 fi
 
-echo "📝 Installing Helix..."
-sudo dnf install -y helix
+echo "📝 Installing Helix and common LSPs via dnf..."
+sudo dnf install -y helix \
+  rust-analyzer \
+  gopls \
+  python3-pylsp \
+  clang-tools-extra \
+  yaml-language-server \
+  marksman
 
 # Ensure npm is available for language servers that are not consistently packaged on Fedora.
 if [ -z "${NVM_DIR:-}" ]; then
