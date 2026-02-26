@@ -24,8 +24,10 @@ if ! command -v go >/dev/null 2>&1; then
   sudo dnf install -y golang
 fi
 
+sudo dnf install dotnet-sdk-10.0
+
 # Rust
 curl https://sh.rustup.rs -sSf | sh -s -- -y
 
 # Crystal
-curl -fsSL https://crystal-lang.org/install.sh | bash
+curl -fsSL https://crystal-lang.org/install.sh | sudo bash
