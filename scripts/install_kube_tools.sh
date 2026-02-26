@@ -26,8 +26,7 @@ if ! command -v go >/dev/null 2>&1; then
   exit 1
 fi
 
-mkdir -p "$HOME/tools"
-k9s_repo_dir="$HOME/tools/k9s"
+k9s_repo_dir="$HOME/repos/tools/k9s"
 
 if [ -d "$k9s_repo_dir/.git" ]; then
   git -C "$k9s_repo_dir" pull --ff-only
@@ -41,7 +40,6 @@ fi
   make build
 )
 
-mkdir -p "$HOME/.local/bin"
 install -m 0755 "$k9s_repo_dir/execs/k9s" "$HOME/.local/bin/k9s"
 
 echo "✅ k9s installed to $HOME/.local/bin/k9s"
