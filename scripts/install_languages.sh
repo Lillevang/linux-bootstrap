@@ -1,10 +1,16 @@
 #!/usr/bin/env bash
-set -e
+set -euo pipefail
 
 # NVM / Node
 curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
 export NVM_DIR="$HOME/.nvm"
 . "$NVM_DIR/nvm.sh"
+
+# WSL setups can inherit a Windows npm prefix from a global npmrc.
+# This breaks npm inside Linux; remove any effective prefix before installing.
+npm config delete prefix >/dev/null 2>&1 || true
+unset npm_config_prefix NPM_CONFIG_PREFIX PREFIX || true
+
 nvm install --lts
 
 # Ensure running on Fedora (dnf present)

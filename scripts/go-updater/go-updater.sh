@@ -1,37 +1,37 @@
-#!/bin/bash
+#!/usr/bin/env bash
+set -euo pipefail
 
-# Fetch the current version of the Go binary
-installed_version=$(go version | awk '{print $3}' | sed 's/^..//')
+if ! command -v go >/dev/null 2>&1; then
+  echo "Go is not installed, skipping updater"
+  exit 0
+fi
 
-# Call the python script with the installed version as argument TODO: make the path to the script configurable somehow...
-output=$(python3 ~/util/go-updater/check_go_update.py $installed_version)
+# Fetch the current version of the Go binary.
+installed_version=$(go version | awk '{print $3}' | sed 's/^go//')
 
-read version download_link checksum <<<$(echo $output)
+script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+checker_script="$script_dir/check_go_update.py"
 
-# if version is empty, then the installed version is the latest
+if [ ! -f "$checker_script" ]; then
+  echo "Go updater checker script not found at $checker_script"
+  exit 1
+fi
+
+output=$(python3 "$checker_script" "$installed_version")
+read -r version download_link checksum <<<"$output"
+
 if [ -z "$version" ]; then
-    echo "Go is up to date"
-    exit 0
+  echo "Go is up to date"
+  exit 0
 fi
 
-if [ -n "$version" ]; then
-    echo "New version available: $version"
+echo "New version available: $version"
 
-    # Download the new version
-    wget -O go_new_version.tar.gz $download_link
+wget -O go_new_version.tar.gz "$download_link"
+echo "$checksum go_new_version.tar.gz" | sha256sum -c -
 
-    # Verify the checksum
-    echo "$checksum go_new_version.tar.gz" | sha256sum -c -
-
-    # If the checksum is correct, install the new version
-    if [ $? -eq 0 ]; then
-        echo "New version valid, updating Go..."
-        sudo rm -rf /usr/local/go
-        sudo tar -C /usr/local -xzf go_new_version.tar.gz
-        rm go_new_version.tar.gz
-        echo "Go updated to version $version"
-    else
-        echo "Checksum verification failed."
-        rm go_new_version.tar.gz
-    fi
-fi
+echo "New version valid, updating Go..."
+sudo rm -rf /usr/local/go
+sudo tar -C /usr/local -xzf go_new_version.tar.gz
+rm go_new_version.tar.gz
+echo "Go updated to version $version"
