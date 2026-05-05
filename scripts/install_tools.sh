@@ -16,7 +16,7 @@ if [ -x "$(command -v dnf)" ]; then
     sudo dnf config-manager addrepo --from-repofile=https://download.sublimetext.com/rpm/stable/x86_64/sublime-text.repo
   fi
 
-  sudo dnf install -y curl wget git zsh unzip htop fzf gawk openssl sublime-merge
+  sudo dnf install -y curl wget git zsh unzip htop fzf gawk openssl sublime-merge bat ripgrep difftastic
 else
   echo "❌ Fedora's dnf package manager not found. This bootstrap currently supports Fedora only."
   exit 1
