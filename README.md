@@ -1,81 +1,83 @@
-# 🐧 Linux Bootstrap
+# Linux Bootstrap
 
-Bootstrap a fresh Fedora machine (laptop, WSL, VM, etc.) with essential tools, languages, and dotfiles. This bootstrap currently targets dnf-based Fedora systems only.
+A bootstrap toolkit for setting up a fresh Fedora environment (workstation, VM, or WSL) with core CLI tools, languages, shell customizations, and dotfile links.
 
----
+## Scope
 
-## ✅ What It Does
+This project currently targets Fedora systems that use `dnf`.
 
-- Installs your preferred tools (curl, git, zsh, etc.)
-- Installs programming languages (Python, Go, etc.)
-- Installs Oh My Zsh and your `.zshrc`
-- Symlinks all your dotfiles into `$HOME`
-- Optionally installs GUI tools if running on a full Linux desktop
+## What the bootstrap does
 
----
+The bootstrap runs a sequence of modular scripts:
 
-## 🧍 Manual Setup (One-Time Per Machine)
+- Creates a base folder structure under `$HOME`
+- Installs core tools (for example: git, curl, zsh, ripgrep)
+- Installs language toolchains (Node via nvm, Go, .NET, Rust, Crystal)
+- Installs Helix and selected language servers
+- Installs Kubernetes tooling (kubectl, Helm, Skaffold, k9s)
+- Installs Oh My Zsh, Powerlevel10k, and common plugins
+- Symlinks dotfiles into `$HOME`
+- Checks for Go updates
 
-Before running the bootstrap script, you need to:
+## One-time setup
 
-1. **Generate an SSH key:**
+Before first use on a machine:
 
-    ```bash
-    ssh-keygen -t ed25519 -C "your@email.com"
-    eval "$(ssh-agent -s)"
-    ssh-add ~/.ssh/id_ed25519
-    ```
+1. Generate an SSH key
 
-2. **Copy the public key:**
+   ```bash
+   ssh-keygen -t ed25519 -C "your@email.com"
+   eval "$(ssh-agent -s)"
+   ssh-add ~/.ssh/id_ed25519
+   ```
 
-    ```bash
-    cat ~/.ssh/id_ed25519.pub
-    ```
+2. Copy your public key
 
-3. **Add it to your GitHub account:**
+   ```bash
+   cat ~/.ssh/id_ed25519.pub
+   ```
 
-    - Go to: https://github.com/settings/ssh/new
-    - Paste the public key
+3. Add it to GitHub: <https://github.com/settings/ssh/new>
+4. Clone the repository
 
-4. **Clone this repo:**
+   ```bash
+   git clone git@github.com:<your-username>/linux-bootstrap.git
+   cd linux-bootstrap
+   ```
 
-    ```bash
-    git clone git@github.com:<your-username>/linux-bootstrap.git
-    cd linux-bootstrap
-    ```
+## Usage
 
-5. **Run the bootstrap:**
+Run the full bootstrap:
 
-    ```bash
-    ./install.sh
-    ```
+```bash
+./install.sh
+```
 
----
+If a step fails, review the summary output and rerun that script directly from `scripts/` after fixing the underlying issue.
 
-## 🧪 Tested On
+## Script layout
 
-- Fedora (Workstation/Server)
+- `install.sh` - Orchestrates all setup steps and prints a summary
+- `scripts/create_folders.sh` - Creates standard directories
+- `scripts/install_tools.sh` - Installs base Fedora tooling
+- `scripts/install_languages.sh` - Installs language runtimes and toolchains
+- `scripts/install_editors.sh` - Installs Helix and language server tooling
+- `scripts/install_kube_tools.sh` - Installs Kubernetes CLI tools
+- `scripts/install_oh_my_zsh.sh` - Installs shell framework, theme, and plugins
+- `link_dotfiles.sh` - Symlinks dotfiles into `$HOME` (with backup)
+- `scripts/go-updater/` - Go version check/update utility
 
----
+## Tested on
 
-## 📦 Components
+- Fedora 44
 
-See `scripts/` folder for modular installers:
-- `install_tools.sh` — core tools
-- `install_languages.sh` — Python, Go, etc.
-- `install_oh_my_zsh.sh` — shell setup
-- `link_dotfiles.sh` — symlinks configs from `dotfiles/`
+## TODO
 
----
-
-## 🗂️ Dotfiles
-
-Your personal dotfiles live under `dotfiles/` and get symlinked to `$HOME`.
-
----
-
-## ✨ Ideas for the Future
-
-- Detect GUI vs CLI-only environments
-- Install GUI apps conditionally
-- Add WSL-specific or Arch-specific setup
+- Address Fedora 44 issues:
+  - Crystal install path/repository reliability
+  - Language servers currently installed via `dnf` that should likely move to `npm` and/or `pipx`
+- Add Helix configuration files
+- Add a Yazi install script that:
+  - Clones the required Yazi repository/repositories
+  - Builds with Cargo
+  - Installs the binary in the expected location used by this bootstrap
