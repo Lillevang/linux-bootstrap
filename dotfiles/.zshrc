@@ -5,6 +5,10 @@ if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]
   source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
 fi
 
+[ -f ~/.secrets.zsh ] && source ~/.secrets.zsh
+
+export COLORTERM=truecolor
+
 # Path to your oh-my-zsh installation.
 export ZSH="$HOME/.oh-my-zsh"
 
@@ -12,7 +16,7 @@ export ZSH="$HOME/.oh-my-zsh"
 ZSH_THEME="powerlevel10k/powerlevel10k"
 
 # Plugins to load
-plugins=(git zsh-autosuggestions zsh-syntax-highlighting zsh-completions zsh-history-substring-search autojump)
+plugins=(git zsh-autosuggestions zsh-syntax-highlighting zsh-completions zsh-history-substring-search autojump fzf-zsh-plugin)
 
 source $ZSH/oh-my-zsh.sh
 
@@ -20,6 +24,10 @@ source $ZSH/oh-my-zsh.sh
 export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
 [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+
+# ai-army Aliases
+alias ai-army-docs="cp ~/repos/personal/ai-army/docs/architecture.md ~/repos/personal/ai-army/docs/design-principles.md ~/repos/personal/ai-army/docs/vision.md ~/winhome/TechTinker\'s\ Tome/Projects/ai-army/"
+
 
 # Kubernetes Aliases
 alias k="kubectl"
@@ -72,9 +80,11 @@ alias today="date +%Y-%m-%d"
 
 #Define paths
 LOCAL_BIN='/home/jls/.local'
-
 paths=(
   "$LOCAL_BIN/bin"
+  "/home/jls/go/bin"
+  "/home/jls/repos/tools/elixir-ls"
+  "/usr/local/go/bin"
 )
 
 # Append to PATH without overwriting
@@ -88,6 +98,11 @@ done
 
 export PATH=$(echo "$PATH" | awk -v RS=: -v ORS=: '!seen[$0]++' | sed 's/:$//')
 
+
+# Brew
+eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv bash)"
+
+
 # Persistent command history
 
 # Enable fzf keybindings for Zsh
@@ -96,7 +111,10 @@ export PATH=$(echo "$PATH" | awk -v RS=: -v ORS=: '!seen[$0]++' | sed 's/:$//')
 # Optional: Enable fzf auto-completion for commands
 [ -f /usr/share/fzf/shell/completion.zsh ] && source /usr/share/fzf/shell/completion.zsh
 
-. "$HOME/.asdf/asdf.sh"
+#if command -v asdf >/dev/null 2>&1; then
+#  eval "$(asdf completion zsh 2>/dev/null)" || true
+#fi
+
 autoload -Uz compinit && compinit
 
 HISTFILE=~/.zsh_history
@@ -106,7 +124,16 @@ setopt inc_append_history
 setopt share_history
 bindkey '^R' fzf-history-widget  # Use fzf for history search
 
+# Load direnv's env for the current dir BEFORE the p10k preamble, so its
+# "direnv: loading" output can't corrupt the instant prompt.
+(( ${+commands[direnv]} )) && emulate zsh -c "$(direnv export zsh)"
+
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
 
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+
+# Zoxide — must be initialized last so its chpwd/precmd hooks aren't
+# clobbered by p10k/compinit/fzf (avoids "zoxide: detected a possible
+# configuration issue" warning).
+eval "$(zoxide init zsh --cmd cd)"

@@ -70,3 +70,8 @@
         amend = commit --amend --no-edit
         unstage = reset HEAD --
         lg = log --graph --abbrev-commit --decorate --date=short --all
+[safe]
+	directory = *
+	directory = *
+[pull]
+	rebase = true
