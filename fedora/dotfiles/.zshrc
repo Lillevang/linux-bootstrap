@@ -16,7 +16,7 @@ export ZSH="$HOME/.oh-my-zsh"
 ZSH_THEME="powerlevel10k/powerlevel10k"
 
 # Plugins to load
-plugins=(git zsh-autosuggestions zsh-syntax-highlighting zsh-completions zsh-history-substring-search autojump fzf-zsh-plugin)
+plugins=(git zsh-autosuggestions zsh-syntax-highlighting zsh-completions zsh-history-substring-search fzf-zsh-plugin)
 
 source $ZSH/oh-my-zsh.sh
 
@@ -29,15 +29,17 @@ export NVM_DIR="$HOME/.nvm"
 alias ai-army-docs="cp ~/repos/personal/ai-army/docs/architecture.md ~/repos/personal/ai-army/docs/design-principles.md ~/repos/personal/ai-army/docs/vision.md ~/winhome/TechTinker\'s\ Tome/Projects/ai-army/"
 
 
-# Kubernetes Aliases
-alias k="kubectl"
-alias kn="kubectl get nodes"
-alias kgp="kubectl get pods"
-alias kdp="kubectl describe pod"
-alias kx="kubectl exec -it"
-alias kl="kubectl logs"
-alias kctx="kubectl config use-context"
-alias kns="kubectl config set-context --current --namespace"
+# Kubernetes Aliases (inert until kubectl is installed on this machine)
+if command -v kubectl >/dev/null; then
+  alias k="kubectl"
+  alias kn="kubectl get nodes"
+  alias kgp="kubectl get pods"
+  alias kdp="kubectl describe pod"
+  alias kx="kubectl exec -it"
+  alias kl="kubectl logs"
+  alias kctx="kubectl config use-context"
+  alias kns="kubectl config set-context --current --namespace"
+fi
 
 # Git Aliases
 alias gs="git status"
@@ -76,28 +78,27 @@ alias reloadzsh="source ~/.zshrc"
 alias today="date +%Y-%m-%d"
 
 #Define paths
-LOCAL_BIN='/home/jls/.local'
+LOCAL_BIN="$HOME/.local"
 paths=(
   "$LOCAL_BIN/bin"
-  "/home/jls/go/bin"
-  "/home/jls/repos/tools/elixir-ls"
+  "$HOME/go/bin"
+  "$HOME/repos/tools/elixir-ls"
   "/usr/local/go/bin"
 )
 
-# Append to PATH without overwriting
+# Append to PATH without overwriting; dirs that don't exist on this
+# machine are silently skipped (this file is shared across machines)
 for dir in "${paths[@]}"; do
   if [ -d "$dir" ]; then
      [[ ! "$PATH" =~ "$dir" ]] && export PATH="$dir:$PATH"
-  else
-    echo "Warning: $dir does not exist"
   fi
 done
 
 export PATH=$(echo "$PATH" | awk -v RS=: -v ORS=: '!seen[$0]++' | sed 's/:$//')
 
 
-# Brew
-eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv bash)"
+# Brew (only present on some machines, e.g. WSL)
+[ -x /home/linuxbrew/.linuxbrew/bin/brew ] && eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv bash)"
 
 
 # Persistent command history
@@ -119,7 +120,11 @@ HISTSIZE=10000
 SAVEHIST=10000
 setopt inc_append_history
 setopt share_history
-bindkey '^R' fzf-history-widget  # Use fzf for history search
+
+# Per-directory envs (direnv) and shell history (atuin — takes over
+# ctrl-r from fzf). Guarded: machines without a tool skip it.
+command -v direnv >/dev/null && eval "$(direnv hook zsh)"
+command -v atuin >/dev/null && eval "$(atuin init zsh --disable-up-arrow)"
 
 # Load direnv's env for the current dir BEFORE the p10k preamble, so its
 # "direnv: loading" output can't corrupt the instant prompt.
@@ -133,4 +138,4 @@ bindkey '^R' fzf-history-widget  # Use fzf for history search
 # Zoxide — must be initialized last so its chpwd/precmd hooks aren't
 # clobbered by p10k/compinit/fzf (avoids "zoxide: detected a possible
 # configuration issue" warning).
-eval "$(zoxide init zsh --cmd cd)"
+command -v zoxide >/dev/null && eval "$(zoxide init zsh --cmd cd)"

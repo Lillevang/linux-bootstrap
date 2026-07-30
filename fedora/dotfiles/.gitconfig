@@ -10,8 +10,14 @@
 [core]
     editor = hx
     excludesFile = ~/.gitignore
-    pager = less -FRX
+    pager = delta
     whitespace = trailing-space,cr-at-eol
+
+[interactive]
+    diffFilter = delta --color-only
+
+[delta]
+    navigate = true
 
 [color]
     ui = auto

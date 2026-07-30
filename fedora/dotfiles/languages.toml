@@ -1,2 +1,14 @@
-[language-server.mylang-lsp]
-command = "bash-language-server"
+# Helix language overrides. Contract: `hx --health <lang>` should be all
+# green for every language installed via fedora/optional/.
+
+# Helix's default crystal config also wants ameba-ls, which has never
+# shipped (ameba has no such build target) — limit crystal to crystalline.
+[[language]]
+name = "crystal"
+language-servers = ["crystalline"]
+
+# Newer helix defaults add ty and jedi-language-server for python; our
+# stack is uv-managed pylsp + ruff (55_python.sh) — pin to exactly that.
+[[language]]
+name = "python"
+language-servers = ["ruff", "pylsp"]

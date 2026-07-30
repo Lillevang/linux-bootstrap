@@ -138,19 +138,48 @@ if [ "$FAILED" -eq 0 ]; then
   }
 fi
 
+# --- OPTIONAL=all: run every optional unit, then the manifest runner ---
+if [ "$FAILED" -eq 0 ] && [ "${OPTIONAL:-}" = "all" ]; then
+  UNITS="$(for f in "$REPO_DIR"/fedora/optional/*.sh; do basename "$f" .sh; done | grep -vx run)"
+  for unit in $UNITS; do
+    run_remote "optional/$unit" "bash optional/$unit.sh" || {
+      echo "!!!!! optional/$unit FAILED"
+      FAILED=1
+      break
+    }
+  done
+  if [ "$FAILED" -eq 0 ]; then
+    UNITS_ONELINE="$(echo "$UNITS" | tr '\n' ' ')"
+    run_remote "optional/run.sh (idempotent re-run)" \
+      "printf '%s\n' $UNITS_ONELINE > /tmp/all.conf && bash optional/run.sh /tmp/all.conf" || {
+      echo "!!!!! optional/run.sh FAILED"
+      FAILED=1
+    }
+  fi
+fi
+
 # --- verify ---
 if [ "$FAILED" -eq 0 ]; then
   echo
   echo "===== verification"
-  vm_ssh bash -s <<'EOF' || FAILED=1
+  vm_ssh "OPTIONAL='${OPTIONAL:-}' bash -s" <<'EOF' || FAILED=1
 set -u
+export PATH="$HOME/.local/bin:$PATH"
 fail=0
 check() {
-  if eval "$2" >/dev/null 2>&1; then
+  if eval "$2" >/dev/null 2>"$HOME/.check_err"; then
     echo "ok:   $1"
   else
     echo "FAIL: $1"
+    sed 's/^/        /' "$HOME/.check_err"
     fail=1
+  fi
+}
+health_green() {
+  local out
+  out="$(hx --health "$1" 2>/dev/null)"
+  if printf '%s\n' "$out" | grep '✘' >&2; then
+    return 1
   fi
 }
 check "login shell is zsh"          '[ "$(getent passwd "$USER" | cut -d: -f7)" = "$(command -v zsh)" ]'
@@ -160,7 +189,7 @@ check ".gitconfig symlinked"        '[ -L "$HOME/.gitconfig" ]'
 check ".p10k.zsh symlinked"         '[ -L "$HOME/.p10k.zsh" ]'
 check "oh-my-zsh present"           '[ -f "$HOME/.oh-my-zsh/oh-my-zsh.sh" ]'
 check "powerlevel10k present"       '[ -d "$HOME/.oh-my-zsh/custom/themes/powerlevel10k" ]'
-check "autojump zsh integration"    '[ -f /usr/share/autojump/autojump.zsh ]'
+check "zoxide installed"            'command -v zoxide'
 check "helix installed"             'command -v hx'
 check "yazi installed"              'command -v yazi'
 check "fzf installed"               'command -v fzf'
@@ -168,6 +197,29 @@ check "sublime merge installed"     'command -v smerge'
 check "~/repos created"             '[ -d "$HOME/repos" ]'
 check "~/.local/bin created"        '[ -d "$HOME/.local/bin" ]'
 check "rpmfusion enabled"           'dnf repolist --enabled | grep -q rpmfusion-free'
+check "node + npm installed"        'command -v node && command -v npm'
+check "uv + ruff installed"         'command -v uv && command -v ruff'
+check "pylsp installed"             'command -v pylsp'
+check "just installed"              'command -v just'
+check "task installed"              'command -v task'
+check "make installed"              'command -v make'
+check "jq installed"                'command -v jq'
+check "search tools installed"      'command -v rg && command -v fd && command -v bat && command -v tree'
+check "git tooling installed"       'command -v gh && command -v delta'
+check "qol tools installed"         'command -v eza && command -v btop && command -v direnv && command -v duf && command -v hyperfine && command -v fastfetch && command -v atuin && command -v yq'
+check "helix config symlinked"      '[ -L "$HOME/.config/helix/config.toml" ] && [ -L "$HOME/.config/helix/languages.toml" ]'
+check "hx health python all green"  'health_green python'
+check "hx health bash all green"    'health_green bash'
+
+if [ "${OPTIONAL:-}" = "all" ]; then
+  check "kubectl installed"          'command -v kubectl'
+  check "helm installed"             'command -v helm'
+  check "k9s installed"              'command -v k9s'
+  check "hx health go all green"     'health_green go'
+  check "hx health rust all green"   'health_green rust'
+  check "hx health zig all green"    'health_green zig'
+  check "hx health crystal all green" 'health_green crystal'
+fi
 exit "$fail"
 EOF
 fi
