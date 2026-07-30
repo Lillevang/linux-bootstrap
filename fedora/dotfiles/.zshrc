@@ -75,9 +75,6 @@ alias editzsh="hx ~/.zshrc"
 alias reloadzsh="source ~/.zshrc"
 alias today="date +%Y-%m-%d"
 
-# Add buildpack auto-completion
-. $(pack completion --shell zsh)
-
 #Define paths
 LOCAL_BIN='/home/jls/.local'
 paths=(

@@ -1,0 +1,114 @@
+[user]
+    # No global name/email: identity comes from includeIf below.
+    # useConfigOnly now does real work — commits in unmatched repos fail
+    # loudly instead of silently using the wrong identity.
+    useConfigOnly = true
+
+[init]
+    defaultBranch = main
+
+[core]
+    editor = hx
+    excludesFile = ~/.gitignore
+    pager = less -FRX
+    whitespace = trailing-space,cr-at-eol
+
+[color]
+    ui = auto
+
+[column]
+    ui = auto
+
+[diff]
+    algorithm = histogram
+    colorMoved = default
+    colorMovedWS = allow-indentation-change
+    mnemonicPrefix = true
+    renames = true
+
+[merge]
+    tool = sublime_merge
+    conflictStyle = zdiff3
+
+[mergetool]
+    keepBackup = false
+
+[mergetool "sublime_merge"]
+    cmd = smerge mergetool --no-wait "$BASE" "$LOCAL" "$REMOTE" -o "$MERGED"
+
+[fetch]
+    prune = true
+    pruneTags = true
+    writeCommitGraph = true
+
+[push]
+    default = simple
+    autoSetupRemote = true
+    followTags = true
+    useForceIfIncludes = true
+
+[pull]
+    rebase = true
+
+[rebase]
+    autoSquash = true
+    autoStash = true
+    updateRefs = true
+    missingCommitsCheck = warn
+
+[branch]
+    sort = -committerdate
+
+[tag]
+    sort = version:refname
+    gpgSign = true
+
+[commit]
+    verbose = true
+    gpgSign = true
+
+[gpg]
+    format = ssh
+
+[gpg "ssh"]
+    allowedSignersFile = ~/.ssh/allowed_signers
+
+[rerere]
+    enabled = true
+    autoUpdate = true
+
+[help]
+    autocorrect = prompt
+
+[log]
+    date = iso
+
+[format]
+    pretty = format:%C(auto)%h%C(auto)%d %Cgreen%ad%Creset %C(bold blue)%an%Creset %s
+[worktree]
+    guessRemote = true
+
+[alias]
+    st = status
+    sw = switch
+    new = switch -c
+    ci = commit
+    br = branch
+    amend = commit --amend --no-edit
+    unstage = restore --staged --
+    lg = log --graph --date=short
+    lga = log --graph --date=short --all
+
+# Identity split by repository location. signingKey lives in each
+# include so work can use a different key later if a client requires it.
+[includeIf "gitdir:~/repos/work/"]
+    path = ~/.gitconfig-work
+
+[includeIf "gitdir:~/repos/personal/"]
+    path = ~/.gitconfig-personal
+
+[includeIf "gitdir:~/Documents/"]
+    path = ~/.gitconfig-personal
+
+[includeIf "gitdir:~/repos/tools/"]
+    path = ~/.gitconfig-personal

@@ -1,0 +1,2 @@
+[language-server.mylang-lsp]
+command = "bash-language-server"
