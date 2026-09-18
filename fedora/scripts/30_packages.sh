@@ -20,4 +20,40 @@ gpgkey=https://dl.cloudsmith.io/public/task/task/gpg.046FD1186CA342F0.key
 EOF
 fi
 
-sudo dnf -y install   git   gnome-tweaks   gnome-extensions-app   zsh   htop   btop   fzf   zoxide   yazi   helix   nodejs-npm   nodejs-bash-language-server   uv   ruff   make   just   task   jq   ShellCheck   shfmt   ripgrep   fd-find   bat   eza   gh   git-delta   yq   tree   direnv   duf   du-dust   procs   chezmoi   hyperfine   fastfetch   atuin
+sudo dnf -y install \
+  git \
+  gnome-tweaks \
+  gnome-extensions-app \
+  zsh \
+  htop \
+  btop \
+  fzf \
+  zoxide \
+  yazi \
+  helix \
+  nodejs-npm \
+  nodejs-bash-language-server \
+  uv \
+  ruff \
+  make \
+  just \
+  task \
+  jq \
+  ShellCheck \
+  shfmt \
+  ripgrep \
+  fd-find \
+  bat \
+  eza \
+  gh \
+  git-delta \
+  yq \
+  tree \
+  direnv \
+  duf \
+  du-dust \
+  procs \
+  chezmoi \
+  hyperfine \
+  fastfetch \
+  atuin
