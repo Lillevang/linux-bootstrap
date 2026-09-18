@@ -10,17 +10,29 @@ FEDORA_VER="$(rpm -E %fedora)"
 
 sudo dnf -y copr enable scottames/ghostty
 
-sudo dnf -y install   ghostty   sway   jetbrains-mono-fonts-all   gnome-shell-extension-forge   gnome-shell-extension-blur-my-shell   gnome-shell-extension-just-perfection
+sudo dnf -y install \
+  ghostty \
+  sway \
+  jetbrains-mono-fonts-all \
+  gnome-shell-extension-forge \
+  gnome-shell-extension-blur-my-shell \
+  gnome-shell-extension-just-perfection
 
 if command -v flatpak >/dev/null 2>&1; then
-  flatpak remote-add --user --if-not-exists     flathub https://flathub.org/repo/flathub.flatpakrepo
+  flatpak remote-add --user --if-not-exists \
+    flathub https://flathub.org/repo/flathub.flatpakrepo
 
-  flatpak install --user -y flathub     com.mattjakeman.ExtensionManager     org.localsend.localsend_app
+  flatpak install --user -y flathub \
+    com.mattjakeman.ExtensionManager \
+    org.localsend.localsend_app
 fi
 
 # Espanso's Fedora Wayland package is published through Terra.
 if ! rpm -q terra-release >/dev/null 2>&1; then
-  sudo dnf -y install     --repofrompath "terra,https://repos.fyralabs.com/terra${FEDORA_VER}"     --setopt="terra.gpgkey=https://repos.fyralabs.com/terra${FEDORA_VER}/key.asc"     terra-release
+  sudo dnf -y install \
+    --repofrompath "terra,https://repos.fyralabs.com/terra${FEDORA_VER}" \
+    --setopt="terra.gpgkey=https://repos.fyralabs.com/terra${FEDORA_VER}/key.asc" \
+    terra-release
 fi
 
 ESPANSO_PACKAGE="espanso-wayland"
