@@ -51,6 +51,9 @@ sudo dnf -y install \
   tree \
   direnv \
   duf \
+  du-dust \
+  procs \
+  chezmoi \
   hyperfine \
   fastfetch \
   atuin

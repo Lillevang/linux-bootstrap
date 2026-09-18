@@ -1,36 +1,83 @@
-# Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zshrc.
-# Initialization code that may require console input (password prompts, [y/n]
-# confirmations, etc.) must go above this block; everything else may go below.
+# Enable Powerlevel10k instant prompt. Keep close to the top of ~/.zshrc.
 if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
   source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
 fi
 
-[ -f ~/.secrets.zsh ] && source ~/.secrets.zsh
+[[ -f "$HOME/.secrets.zsh" ]] && source "$HOME/.secrets.zsh"
 
 export COLORTERM=truecolor
 
-# Path to your oh-my-zsh installation.
-export ZSH="$HOME/.oh-my-zsh"
+# PATH: Zsh ties $path and $PATH together; -U removes duplicates.
+typeset -U path PATH
+paths=(
+  "$HOME/.local/bin"
+  "$HOME/go/bin"
+  "$HOME/repos/tools/elixir-ls"
+  "/usr/local/go/bin"
+)
 
-# Set the theme
+for dir in "${paths[@]}"; do
+  [[ -d "$dir" ]] && path=("$dir" $path)
+done
+
+# Homebrew (only present on some machines, e.g. WSL)
+if [[ -x /home/linuxbrew/.linuxbrew/bin/brew ]]; then
+  eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+fi
+
+# Oh My Zsh
+export ZSH="$HOME/.oh-my-zsh"
 ZSH_THEME="powerlevel10k/powerlevel10k"
 
-# Plugins to load
-plugins=(git zsh-autosuggestions zsh-syntax-highlighting zsh-completions zsh-history-substring-search fzf-zsh-plugin)
+plugins=(
+  git
+  zsh-autosuggestions
+  zsh-syntax-highlighting
+  zsh-completions
+  zsh-history-substring-search
+)
 
-source $ZSH/oh-my-zsh.sh
+source "$ZSH/oh-my-zsh.sh"
 
-# NVM integration
+# Fedora-native fzf integration. Atuin takes Ctrl-R later.
+[[ -f /usr/share/fzf/shell/key-bindings.zsh ]] && \
+  source /usr/share/fzf/shell/key-bindings.zsh
+[[ -f /usr/share/fzf/shell/completion.zsh ]] && \
+  source /usr/share/fzf/shell/completion.zsh
+
+# Node.js via NVM for now. mise is intentionally deferred.
 export NVM_DIR="$HOME/.nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
-[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+[[ -s "$NVM_DIR/nvm.sh" ]] && source "$NVM_DIR/nvm.sh"
+[[ -s "$NVM_DIR/bash_completion" ]] && source "$NVM_DIR/bash_completion"
 
-# ai-army Aliases
+# Future NVM replacement:
+# if command -v mise >/dev/null 2>&1; then
+#   eval "$(mise activate zsh)"
+# fi
+
+# Persistent history
+HISTFILE="$HOME/.zsh_history"
+HISTSIZE=10000
+SAVEHIST=10000
+setopt inc_append_history
+setopt share_history
+
+# Per-directory environment
+if command -v direnv >/dev/null 2>&1; then
+  eval "$(direnv hook zsh)"
+  emulate zsh -c "$(direnv export zsh)"
+fi
+
+# Searchable shell history; takes over Ctrl-R from fzf.
+if command -v atuin >/dev/null 2>&1; then
+  eval "$(atuin init zsh --disable-up-arrow)"
+fi
+
+# Project helpers
 alias ai-army-docs="cp ~/repos/personal/ai-army/docs/architecture.md ~/repos/personal/ai-army/docs/design-principles.md ~/repos/personal/ai-army/docs/vision.md ~/winhome/TechTinker\'s\ Tome/Projects/ai-army/"
 
-
-# Kubernetes Aliases (inert until kubectl is installed on this machine)
-if command -v kubectl >/dev/null; then
+# Kubernetes
+if command -v kubectl >/dev/null 2>&1; then
   alias k="kubectl"
   alias kn="kubectl get nodes"
   alias kgp="kubectl get pods"
@@ -39,103 +86,86 @@ if command -v kubectl >/dev/null; then
   alias kl="kubectl logs"
   alias kctx="kubectl config use-context"
   alias kns="kubectl config set-context --current --namespace"
+
+  if command -v fzf >/dev/null 2>&1; then
+    kctxf() {
+      local context
+      context="$(kubectl config get-contexts -o name | fzf --prompt='Kubernetes context > ')"
+      [[ -n "$context" ]] && kubectl config use-context "$context"
+    }
+
+    knsf() {
+      local namespace
+      namespace="$(kubectl get namespaces \
+        -o jsonpath='{range .items[*]}{.metadata.name}{"\n"}{end}' | \
+        fzf --prompt='Namespace > ')"
+      [[ -n "$namespace" ]] && \
+        kubectl config set-context --current --namespace="$namespace"
+    }
+  fi
 fi
 
-# Git Aliases
+# Git
 alias gs="git status"
 alias ga="git add"
 alias gc="git commit"
 alias gp="git push"
 alias gco="git checkout"
-alias gl="git log --oneline --graph --decorate --all"
 alias gcb="git checkout -b"
+alias gl="git log --oneline --graph --decorate --all"
 alias gm="git merge"
 alias gr="git rebase"
 alias gcp="git cherry-pick"
 
-# Navigation Aliases
+if command -v fzf >/dev/null 2>&1; then
+  gcof() {
+    local branch
+    branch="$(git branch --all --format='%(refname:short)' | \
+      sed 's#^origin/##' | \
+      sort -u | \
+      fzf --prompt='Git branch > ')"
+    [[ -n "$branch" ]] && git checkout "$branch"
+  }
+fi
+
+# Navigation
 alias ..="cd .."
 alias ...="cd ../.."
 alias ....="cd ../../.."
 alias ~="cd ~"
 
-# File and System Utility Aliases
+# File and system utilities
 alias cls="clear"
-alias la="ls -la"
-alias ll="ls -l"
 alias mv="mv -i"
 alias cp="cp -i"
 alias rm="rm -i"
-alias df="df -h"
-alias du="du -h"
 
-# Zshrc backup Alias
-alias backupzsh="cp ~/.zshrc ~/.zshrc.bak.$(date +%F)"
+if command -v eza >/dev/null 2>&1; then
+  alias ls="eza --icons"
+  alias ll="eza -lh --icons --git"
+  alias la="eza -lah --icons --git"
+  alias tree="eza --tree --icons"
+else
+  alias ll="ls -l"
+  alias la="ls -la"
+fi
 
-# General Productivity Aliases
+command -v bat >/dev/null 2>&1 && alias b="bat"
+command -v btop >/dev/null 2>&1 && alias bt="btop"
+command -v duf >/dev/null 2>&1 && alias disks="duf"
+command -v dust >/dev/null 2>&1 && alias usage="dust"
+command -v procs >/dev/null 2>&1 && alias processes="procs"
+
+# Zsh config helpers
+alias backupzsh='cp ~/.zshrc ~/.zshrc.bak.$(date +%F)'
 alias editzsh="hx ~/.zshrc"
-alias reloadzsh="source ~/.zshrc"
+alias reloadzsh="exec zsh"
 alias today="date +%Y-%m-%d"
 
-#Define paths
-LOCAL_BIN="$HOME/.local"
-paths=(
-  "$LOCAL_BIN/bin"
-  "$HOME/go/bin"
-  "$HOME/repos/tools/elixir-ls"
-  "/usr/local/go/bin"
-)
+# Powerlevel10k
+[[ -f "$HOME/.p10k.zsh" ]] && source "$HOME/.p10k.zsh"
 
-# Append to PATH without overwriting; dirs that don't exist on this
-# machine are silently skipped (this file is shared across machines)
-for dir in "${paths[@]}"; do
-  if [ -d "$dir" ]; then
-     [[ ! "$PATH" =~ "$dir" ]] && export PATH="$dir:$PATH"
-  fi
-done
-
-export PATH=$(echo "$PATH" | awk -v RS=: -v ORS=: '!seen[$0]++' | sed 's/:$//')
-
-
-# Brew (only present on some machines, e.g. WSL)
-[ -x /home/linuxbrew/.linuxbrew/bin/brew ] && eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv bash)"
-
-
-# Persistent command history
-
-# Enable fzf keybindings for Zsh
-[ -f /usr/share/fzf/shell/key-bindings.zsh ] && source /usr/share/fzf/shell/key-bindings.zsh
-
-# Optional: Enable fzf auto-completion for commands
-[ -f /usr/share/fzf/shell/completion.zsh ] && source /usr/share/fzf/shell/completion.zsh
-
-#if command -v asdf >/dev/null 2>&1; then
-#  eval "$(asdf completion zsh 2>/dev/null)" || true
-#fi
-
-autoload -Uz compinit && compinit
-
-HISTFILE=~/.zsh_history
-HISTSIZE=10000
-SAVEHIST=10000
-setopt inc_append_history
-setopt share_history
-
-# Per-directory envs (direnv) and shell history (atuin — takes over
-# ctrl-r from fzf). Guarded: machines without a tool skip it.
-command -v direnv >/dev/null && eval "$(direnv hook zsh)"
-command -v atuin >/dev/null && eval "$(atuin init zsh --disable-up-arrow)"
-
-# Load direnv's env for the current dir BEFORE the p10k preamble, so its
-# "direnv: loading" output can't corrupt the instant prompt.
-(( ${+commands[direnv]} )) && emulate zsh -c "$(direnv export zsh)"
-
-# To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
-[[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
-
-[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
-
-# Zoxide — must be initialized last so its chpwd/precmd hooks aren't
-# clobbered by p10k/compinit/fzf (avoids "zoxide: detected a possible
-# configuration issue" warning).
-command -v zoxide >/dev/null && eval "$(zoxide init zsh --cmd cd)"
+# zoxide last so its hooks survive other shell tooling.
+if command -v zoxide >/dev/null 2>&1; then
+  eval "$(zoxide init zsh --cmd cd)"
+fi
