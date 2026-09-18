@@ -44,7 +44,8 @@ There is no orchestrator yet (one is planned). Run the steps in numeric order fr
 bash scripts/00_dirs.sh        # create ~/repos and ~/.local/bin
 bash scripts/10_dnf_tuning.sh  # dnf.conf: fastest mirror, parallel downloads
 bash scripts/20_rpmfusion.sh   # enable RPM Fusion free + nonfree
-bash scripts/30_packages.sh    # base package set: node/npm, uv/ruff, just/task/make, shell+editor tools
+bash scripts/30_packages.sh    # base package set: shell/editor/dev + productivity CLI tools
+bash scripts/35_workstation.sh # Workstation-only: Ghostty, GNOME polish, Sway, font, Flatpaks, Espanso
 bash scripts/40_multimedia.sh  # multimedia group (needs RPM Fusion first)
 bash scripts/50_ohmyzsh.sh     # Oh My Zsh + powerlevel10k + plugins, chsh to zsh
 bash scripts/55_python.sh      # pylsp via uv tool (python is a base stable)
@@ -55,10 +56,36 @@ bash link_dotfiles.sh          # symlink dotfiles/ into $HOME
 
 Notes:
 
-- Steps 10–40 and 70 need sudo. 50/55/60 are user-scope (50 uses sudo only for `chsh`).
+- Steps 10–40 and 70 need sudo. `35_workstation.sh` exits immediately on non-GNOME Fedora installs, so the Cloud VM test remains lean. 50/55/60 are user-scope (50 uses sudo only for `chsh`).
 - Order matters: `20_rpmfusion.sh` must run before `40_multimedia.sh`, and `30_packages.sh` before 50/55/60 (they need git, uv, helix).
 - `link_dotfiles.sh` must be run from inside `fedora/` — it resolves `dotfiles/` relative to the current directory. Existing files are backed up to `~/.dotfiles_backup` before linking; already-correct symlinks are skipped.
-- The kubectl aliases in `.zshrc` and the nvm block only activate when those tools are installed, so the shared dotfiles work on machines with or without the optional units below.
+- The kubectl helpers in `.zshrc` and the NVM block only activate when those tools are installed, so the shared dotfiles work on machines with or without the optional units below.
+- The shell config enables eza/bat/btop/duf/dust/procs helpers plus fuzzy Git/Kubernetes selectors when their commands are present.
+- `mise` is deliberately not wired in yet; NVM remains the active Node manager until that migration is done.
+
+---
+
+## 🖥️ Workstation extras
+
+`scripts/35_workstation.sh` is intentionally GNOME Workstation-specific. It installs:
+
+- Ghostty (via the scottames COPR)
+- Sway
+- JetBrains Mono
+- Forge, Blur My Shell, and Just Perfection GNOME extensions
+- Extension Manager and LocalSend from Flathub
+- Espanso from Terra, choosing the Wayland package by default and X11 when the current session reports X11
+
+**Clipboard History** (SUPERCILEX) is still installed through Extension Manager rather than pinned in the bootstrap, because GNOME extension releases track shell versions independently.
+
+After installing Espanso for the first time, register/start its user service from a graphical session:
+
+```bash
+espanso service register
+espanso start
+```
+
+The existing symlink-based dotfile setup remains authoritative. `chezmoi` is installed as a useful tool, but the bootstrap does not migrate dotfile ownership to it yet.
 
 ---
 
