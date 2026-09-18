@@ -1,15 +1,22 @@
-# Powerlevel10k instant prompt
+# Enable Powerlevel10k instant prompt. Keep close to the top of ~/.zshrc.
 if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
   source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
 fi
 
 [[ -f "$HOME/.secrets.zsh" ]] && source "$HOME/.secrets.zsh"
+
 export COLORTERM=truecolor
 
-# PATH
+# PATH: Zsh ties $path and $PATH together; -U removes duplicates.
 typeset -U path PATH
-for dir in   "$HOME/.local/bin"   "$HOME/go/bin"   "$HOME/repos/tools/elixir-ls"   "/usr/local/go/bin"
-do
+paths=(
+  "$HOME/.local/bin"
+  "$HOME/go/bin"
+  "$HOME/repos/tools/elixir-ls"
+  "/usr/local/go/bin"
+)
+
+for dir in "${paths[@]}"; do
   [[ -d "$dir" ]] && path=("$dir" $path)
 done
 
@@ -32,10 +39,10 @@ plugins=(
 
 source "$ZSH/oh-my-zsh.sh"
 
-# Fedora fzf integration. Atuin takes Ctrl-R later.
-[[ -f /usr/share/fzf/shell/key-bindings.zsh ]] &&
+# Fedora-native fzf integration. Atuin takes Ctrl-R later.
+[[ -f /usr/share/fzf/shell/key-bindings.zsh ]] && \
   source /usr/share/fzf/shell/key-bindings.zsh
-[[ -f /usr/share/fzf/shell/completion.zsh ]] &&
+[[ -f /usr/share/fzf/shell/completion.zsh ]] && \
   source /usr/share/fzf/shell/completion.zsh
 
 # Node.js via NVM for now. mise is intentionally deferred.
@@ -43,24 +50,30 @@ export NVM_DIR="$HOME/.nvm"
 [[ -s "$NVM_DIR/nvm.sh" ]] && source "$NVM_DIR/nvm.sh"
 [[ -s "$NVM_DIR/bash_completion" ]] && source "$NVM_DIR/bash_completion"
 
-# History
+# Future NVM replacement:
+# if command -v mise >/dev/null 2>&1; then
+#   eval "$(mise activate zsh)"
+# fi
+
+# Persistent history
 HISTFILE="$HOME/.zsh_history"
 HISTSIZE=10000
 SAVEHIST=10000
 setopt inc_append_history
 setopt share_history
 
-# direnv + Atuin
+# Per-directory environment
 if command -v direnv >/dev/null 2>&1; then
   eval "$(direnv hook zsh)"
   emulate zsh -c "$(direnv export zsh)"
 fi
 
+# Searchable shell history; takes over Ctrl-R from fzf.
 if command -v atuin >/dev/null 2>&1; then
   eval "$(atuin init zsh --disable-up-arrow)"
 fi
 
-# Project helper
+# Project helpers
 alias ai-army-docs="cp ~/repos/personal/ai-army/docs/architecture.md ~/repos/personal/ai-army/docs/design-principles.md ~/repos/personal/ai-army/docs/vision.md ~/winhome/TechTinker\'s\ Tome/Projects/ai-army/"
 
 # Kubernetes
@@ -83,9 +96,10 @@ if command -v kubectl >/dev/null 2>&1; then
 
     knsf() {
       local namespace
-      namespace="$(kubectl get namespaces -o jsonpath='{range .items[*]}{.metadata.name}{"\n"}{end}' |
+      namespace="$(kubectl get namespaces \
+        -o jsonpath='{range .items[*]}{.metadata.name}{"\n"}{end}' | \
         fzf --prompt='Namespace > ')"
-      [[ -n "$namespace" ]] &&
+      [[ -n "$namespace" ]] && \
         kubectl config set-context --current --namespace="$namespace"
     }
   fi
@@ -106,9 +120,9 @@ alias gcp="git cherry-pick"
 if command -v fzf >/dev/null 2>&1; then
   gcof() {
     local branch
-    branch="$(git branch --all --format='%(refname:short)' |
-      sed 's#^origin/##' |
-      sort -u |
+    branch="$(git branch --all --format='%(refname:short)' | \
+      sed 's#^origin/##' | \
+      sort -u | \
       fzf --prompt='Git branch > ')"
     [[ -n "$branch" ]] && git checkout "$branch"
   }
@@ -151,7 +165,7 @@ alias today="date +%Y-%m-%d"
 # Powerlevel10k
 [[ -f "$HOME/.p10k.zsh" ]] && source "$HOME/.p10k.zsh"
 
-# zoxide last so its hooks survive other shell tooling
+# zoxide last so its hooks survive other shell tooling.
 if command -v zoxide >/dev/null 2>&1; then
   eval "$(zoxide init zsh --cmd cd)"
 fi
