@@ -16,18 +16,11 @@ if [ ! -d "$OMZ_DIR" ]; then
   RUNZSH=no CHSH=no KEEP_ZSHRC=yes sh -c "$(curl -fsSL "$OMZ_INSTALLER")"
 fi
 
-clone_if_missing "https://github.com/romkatv/powerlevel10k.git" \
-  "$OMZ_CUSTOM/themes/powerlevel10k"
-clone_if_missing "https://github.com/zsh-users/zsh-autosuggestions.git" \
-  "$OMZ_CUSTOM/plugins/zsh-autosuggestions"
-clone_if_missing "https://github.com/zsh-users/zsh-syntax-highlighting.git" \
-  "$OMZ_CUSTOM/plugins/zsh-syntax-highlighting"
-clone_if_missing "https://github.com/zsh-users/zsh-completions.git" \
-  "$OMZ_CUSTOM/plugins/zsh-completions"
-clone_if_missing "https://github.com/zsh-users/zsh-history-substring-search.git" \
-  "$OMZ_CUSTOM/plugins/zsh-history-substring-search"
-clone_if_missing "https://github.com/unixorn/fzf-zsh-plugin.git" \
-  "$OMZ_CUSTOM/plugins/fzf-zsh-plugin"
+clone_if_missing "https://github.com/romkatv/powerlevel10k.git"   "$OMZ_CUSTOM/themes/powerlevel10k"
+clone_if_missing "https://github.com/zsh-users/zsh-autosuggestions.git"   "$OMZ_CUSTOM/plugins/zsh-autosuggestions"
+clone_if_missing "https://github.com/zsh-users/zsh-syntax-highlighting.git"   "$OMZ_CUSTOM/plugins/zsh-syntax-highlighting"
+clone_if_missing "https://github.com/zsh-users/zsh-completions.git"   "$OMZ_CUSTOM/plugins/zsh-completions"
+clone_if_missing "https://github.com/zsh-users/zsh-history-substring-search.git"   "$OMZ_CUSTOM/plugins/zsh-history-substring-search"
 
 # sudo chsh instead of plain chsh: root isn't asked for the user's
 # password, so this works unattended (VM tests, future orchestrator)
