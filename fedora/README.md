@@ -44,7 +44,7 @@ There is no orchestrator yet (one is planned). Run the steps in numeric order fr
 bash scripts/00_dirs.sh        # create ~/repos and ~/.local/bin
 bash scripts/10_dnf_tuning.sh  # dnf.conf: fastest mirror, parallel downloads
 bash scripts/20_rpmfusion.sh   # enable RPM Fusion free + nonfree
-bash scripts/30_packages.sh    # base package set: shell/editor/dev + productivity CLI tools
+bash scripts/30_packages.sh    # base package set: shell/editor/dev, Podman stack + productivity CLI tools
 bash scripts/35_workstation.sh # Workstation-only: Ghostty, GNOME polish, Sway, font, Flatpaks, Espanso
 bash scripts/40_multimedia.sh  # multimedia group (needs RPM Fusion first)
 bash scripts/50_ohmyzsh.sh     # Oh My Zsh + powerlevel10k + plugins, chsh to zsh
@@ -61,6 +61,7 @@ Notes:
 - `link_dotfiles.sh` must be run from inside `fedora/` — it resolves `dotfiles/` relative to the current directory. Existing files are backed up to `~/.dotfiles_backup` before linking; already-correct symlinks are skipped.
 - The kubectl helpers in `.zshrc` and the NVM block only activate when those tools are installed, so the shared dotfiles work on machines with or without the optional units below.
 - The shell config enables eza/bat/btop/duf/dust/procs helpers plus fuzzy Git/Kubernetes selectors when their commands are present.
+- Podman is the default container stack (`podman`, `podman-compose`, `buildah`, `skopeo`). Docker CE is intentionally not installed.
 - `mise` is deliberately not wired in yet; NVM remains the active Node manager until that migration is done.
 
 ---
