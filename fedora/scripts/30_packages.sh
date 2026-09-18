@@ -54,6 +54,10 @@ sudo dnf -y install \
   du-dust \
   procs \
   chezmoi \
+  podman \
+  podman-compose \
+  buildah \
+  skopeo \
   hyperfine \
   fastfetch \
   atuin
